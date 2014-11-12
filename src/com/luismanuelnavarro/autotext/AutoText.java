@@ -44,6 +44,9 @@ public class AutoText {
         inicializar();
     }
     
+    /**
+    Inicializa el menú emergente agregando el evento que responderá al escribir los caracteres
+    */
     private void inicializar(){
         pop = new JPopupMenu();
         pop.setBorderPainted(false);
@@ -87,19 +90,35 @@ public class AutoText {
         elementos.remove(element);
     }
 
+    /**
+    Obtiene el componente de texto sobre el cual está funcionando el autocompletado
+    @return 
+    */
     public JTextComponent getTxTexto() {
         return txTexto;
     }
 
-    public void setTxTexto(JTextComponent txTexto) {
+    /**
+    Establece el componente de texto con el cual se mostrará el menu de autocompletado
+    @param txTexto 
+    */
+    private void setTxTexto(JTextComponent txTexto) {
         this.txTexto = txTexto;
     }
 
+    /**
+    Obtiene el objeto JPopMenu (menú emergente) que se muestra al encontrar coincidencias en el texto escrito en el componente
+    @param pop 
+    */
     public JPopupMenu getPop() {
         return pop;
     }
 
-    public void setPop(JPopupMenu pop) {
+    /**
+    Establece el objeto JPopMenu (menú emergente) que se mostrará al encontrar coincidencias en el texto escrito en el componente
+    @param pop 
+    */
+    private void setPop(JPopupMenu pop) {
         this.pop = pop;
     }
 
@@ -118,6 +137,11 @@ public class AutoText {
         this.caseSensitive = caseSensitive;
     }
     
+    /**
+    Pobla el menu emergente con las opciones que coincidan entre aquellos elementos agregados previamente
+    @param txTexto El componente de texto
+    @param criterio El criterio a buscar
+    */
     private void poblarMenuPop(final JTextComponent txTexto, String criterio){
         
         ActionListener menuListener = new ActionListener() {
@@ -144,6 +168,12 @@ public class AutoText {
         }
     }
     
+    /**
+    Genera el comportamiento del evento al presionar las teclas
+    @param evt El evento
+    @param txTexto El componente de texto
+    @param pop El menú emergente
+    */
     private void txTextoKeyPressed(KeyEvent evt, JTextComponent txTexto, JPopupMenu pop) {       
         if(pop.isVisible())pop.setVisible(false);
         pop.removeAll();
@@ -158,13 +188,27 @@ public class AutoText {
             }
 
             //Si se escribió un caracter (aA0-zZ9) se establece el foco en el campo de texto
-            if((evt.getKeyChar()>='0' && evt.getKeyChar()<='9') || (evt.getKeyChar()>='a' && evt.getKeyChar()<='z') || (evt.getKeyChar()>='A' && evt.getKeyChar()<='Z') 
-                || evt.getKeyCode() == 8 || evt.getKeyCode() == 37 || evt.getKeyCode() == 39 || evt.getKeyCode() == 16 || evt.getKeyCode() == 32 || evt.getKeyCode() == 20 
-                || evt.getKeyCode() == 36 || evt.getKeyCode() == 35 || evt.getKeyCode() == 127 || evt.getKeyCode() == 17 || evt.getKeyCode() == 18){
+            if((evt.getKeyChar()>='0' && evt.getKeyChar()<='9') //si es número
+            || (evt.getKeyChar()>='a' && evt.getKeyChar()<='z') //si es caracter en minúsculas...
+            || (evt.getKeyChar()>='A' && evt.getKeyChar()<='Z') //o caracter en mayúsculas
+            || isFocusableKey(evt.getKeyCode())){//o algún elemento tipo Retroceso, flechas a los lados, Suprimir, Ctrl, Alt, Shift, etc
                 txTexto.requestFocus();
             }
 
         }
     }    
+    
+    /**
+    Indica si alguna de las teclas presionadas requiere que se mantenga el foco en el componente de texto
+    @param keyCode El código del caracter
+    @return true si debe mantenerse el foco en el componente de texto, false si no
+    */
+    private boolean isFocusableKey(int keyCode){
+        int[] focusables = {8,16,37,32,20,39,36,35,18,127,17};
+        for (int focusable : focusables) {
+            if(keyCode==focusable)return true;
+        }
+        return false;
+    }
     
 }
